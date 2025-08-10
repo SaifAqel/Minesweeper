@@ -6,23 +6,28 @@
   <title>Minesweeper — Single File</title>
   <style>
     :root {
-      --bg: #0f1115;
-      --panel: #151922;
-      --accent: #2dd4bf;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --accent: #2563eb;
+      --text: #0f172a;
+      --muted: #64748b;
+      --grid-line: #e2e8f0;
+      --tile: #eef2f7;
+      --tile-hover: #e8edf5;
+      --tile-revealed: #ffffff;
+      --tile-border: #cbd5e1;
       --cell-size: 34px;
       --cell-gap: 4px;
       --radius: 10px;
-      --shadow: 0 10px 22px rgba(0,0,0,.35), inset 0 -2px 0 rgba(255,255,255,.04);
+      --shadow: 0 6px 20px rgba(15, 23, 42, .08);
     }
 
     * { box-sizing: border-box; }
     html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: radial-gradient(1200px 600px at 70% -10%, #152033 0%, #0e121a 50%, #0a0c12 100%);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: linear-gradient(180deg, #fbfdff 0%, var(--bg) 60%);
       color: var(--text);
     }
 
@@ -37,24 +42,24 @@
     }
 
     .brand { display:flex; align-items:center; gap:10px; }
-    .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #22d3ee, #6366f1); box-shadow: var(--shadow); }
-    .brand h1 { font-size: 18px; letter-spacing: .4px; margin:0; font-weight: 700; }
+    .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #60a5fa, #22d3ee); box-shadow: var(--shadow); }
+    .brand h1 { font-size: 18px; letter-spacing: .2px; margin:0; font-weight: 700; color: #0b1220; }
 
     .controls, .stats { display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap: wrap; }
 
     .panel {
-      background: linear-gradient(180deg, #1a2030, #121722);
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--grid-line);
+      border-radius: 12px;
       padding: 8px 10px;
       box-shadow: var(--shadow);
       display:flex; align-items:center; gap:10px;
     }
 
     select, input[type="number"], input[type="text"] {
-      background: #0c1018;
+      background: #f8fafc;
       color: var(--text);
-      border: 1px solid rgba(255,255,255,.1);
+      border: 1px solid var(--grid-line);
       border-radius: 8px;
       padding: 6px 10px;
       outline: none;
@@ -63,42 +68,45 @@
 
     .btn {
       cursor: pointer;
-      background: linear-gradient(180deg, #1f2937, #111827);
-      border: 1px solid rgba(255,255,255,.12);
+      background: #f8fafc;
+      border: 1px solid var(--grid-line);
       color: var(--text);
       padding: 8px 12px;
       border-radius: 12px;
       font-weight: 600;
-      transition: transform .06s ease, filter .2s ease;
+      transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
       box-shadow: var(--shadow);
       user-select: none;
     }
+    .btn:hover { box-shadow: 0 6px 18px rgba(2,6,23,.06); }
     .btn:active { transform: translateY(1px) scale(.99); }
-    .btn.secondary { background: linear-gradient(180deg, #0b1323, #0b1018); }
+    .btn.secondary { background: #f1f5f9; }
 
     .face {
-      width: 48px; height: 48px; border-radius: 14px; display:grid; place-items:center;
-      font-size: 26px; line-height: 1;
-      background: linear-gradient(180deg, #1f2937, #111827);
-      border: 1px solid rgba(255,255,255,.12);
+      width: 60px; height: 44px; border-radius: 10px; display:grid; place-items:center;
+      font-size: 13px; font-weight: 800; letter-spacing: .4px;
+      background: #f8fafc;
+      border: 1px solid var(--grid-line);
       box-shadow: var(--shadow);
       cursor: pointer;
       user-select: none;
+      text-transform: uppercase;
+      color: #0f172a;
     }
 
     .digits { display:flex; gap:8px; align-items:center; }
     .digit {
       font-family: "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-weight: 700; font-size: 18px; letter-spacing: 1px;
-      background: #0a0e16;
-      color: #79ffa6;
-      padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08);
+      font-weight: 700; font-size: 18px; letter-spacing: .5px;
+      background: #ffffff;
+      color: #111827;
+      padding: 6px 10px; border-radius: 8px; border: 1px solid var(--grid-line);
       min-width: 64px; text-align:center;
     }
 
     .board-wrap {
-      background: linear-gradient(180deg, #141b28, #0f141e);
-      border: 1px solid rgba(255,255,255,.08);
+      background: var(--panel);
+      border: 1px solid var(--grid-line);
       border-radius: 16px;
       padding: 14px; box-shadow: var(--shadow);
     }
@@ -114,35 +122,61 @@
       width: var(--cell-size); height: var(--cell-size);
       display:grid; place-items:center;
       border-radius: 8px;
-      background: linear-gradient(180deg, #0f141f, #0b1018);
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: 0 2px 0 rgba(255,255,255,.03), inset 0 -2px 0 rgba(255,255,255,.03);
+      background: var(--tile);
+      border: 1px solid var(--tile-border);
+      box-shadow: 0 1px 0 rgba(2,6,23,.04);
       cursor: pointer; user-select: none; position: relative;
       font-weight: 800;
+      transition: background .12s ease, box-shadow .12s ease, transform .02s ease;
     }
+    .cell:hover { background: var(--tile-hover); }
     .cell:focus { outline: 2px solid #60a5fa; outline-offset: 1px; }
     .cell.revealed {
-      background: linear-gradient(180deg, #182235, #0f1827);
-      border-color: rgba(255,255,255,.06);
-      box-shadow: inset 0 2px 0 rgba(255,255,255,.02);
+      background: var(--tile-revealed);
+      border-color: var(--grid-line);
+      box-shadow: inset 0 1px 0 rgba(2,6,23,.04);
       cursor: default;
     }
     .cell .content { pointer-events: none; }
 
-    .n1 { color: #3b82f6; }
-    .n2 { color: #10b981; }
-    .n3 { color: #f43f5e; }
-    .n4 { color: #a78bfa; }
-    .n5 { color: #f59e0b; }
-    .n6 { color: #06b6d4; }
-    .n7 { color: #e5e7eb; }
-    .n8 { color: #9ca3af; }
+    /* High-contrast numbers for precision */
+    .n1 { color: #1d4ed8; }
+    .n2 { color: #059669; }
+    .n3 { color: #dc2626; }
+    .n4 { color: #7c3aed; }
+    .n5 { color: #b45309; }
+    .n6 { color: #0e7490; }
+    .n7 { color: #0f172a; }
+    .n8 { color: #475569; }
 
-    .flag::after { content: "🚩"; font-size: 18px; }
+    /* Non-emoji indicators */
+    .cell.flag::before {
+      content: "";
+      position: absolute;
+      left: 10px; top: 7px;
+      width: 2px; height: 16px; background: #0f172a; border-radius: 1px;
+    }
+    .cell.flag::after {
+      content: "";
+      position: absolute;
+      left: 12px; top: 7px;
+      width: 0; height: 0;
+      border-left: 12px solid #e11d48; /* red flag */
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+    }
+
+    .cell.mine::after {
+      content: "";
+      position: absolute;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #0f172a;
+      box-shadow: inset 0 0 0 3px #111827;
+    }
+
     .question::after { content: "?"; color: var(--muted); font-weight: 900; }
-    .mine::after { content: "💣"; font-size: 18px; }
     .boom { animation: boom .18s ease-out 2 alternate; }
-    @keyframes boom { from { transform: scale(1); } to { transform: scale(1.08); } }
+    @keyframes boom { from { transform: scale(1); } to { transform: scale(1.06); } }
 
     .footer {
       margin-top: 12px; color: var(--muted); font-size: 13px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
@@ -158,7 +192,7 @@
       :root { --cell-size: 34px; }
       .topbar { grid-template-columns: 1fr; gap: 8px; }
       .controls, .stats { justify-content: space-between; }
-      .face { width: 44px; height: 44px; }
+      .face { width: 56px; height: 42px; }
     }
   </style>
 </head>
@@ -175,7 +209,7 @@
           <span class="label">Mines</span>
           <div id="mineCounter" class="digit">000</div>
         </div>
-        <button id="face" class="face" aria-label="New game" title="New game (R)">🙂</button>
+        <button id="face" class="face" aria-label="New game" title="New game (R)">Reset</button>
         <div class="digits" title="Timer">
           <span class="label">Time</span>
           <div id="timer" class="digit">000</div>
@@ -216,7 +250,7 @@
 
     <div class="footer">
       <div class="keys">
-        <strong>Controls:</strong> Left‑click reveal • Right‑click/Long‑press flag • Double‑click/chord on numbers • <kbd>Arrows</kbd> move • <kbd>Space</kbd>/<kbd>Enter</kbd> reveal/chord • <kbd>F</kbd> flag • <kbd>R</kbd> restart
+        <strong>Controls:</strong> Left-click reveal • Right-click/Long-press flag • Double-click/chord on numbers • <kbd>Arrows</kbd> move • <kbd>Space</kbd>/<kbd>Enter</kbd> reveal/chord • <kbd>F</kbd> flag • <kbd>R</kbd> restart
       </div>
       <div class="keys" id="bestTimes"></div>
     </div>
@@ -429,7 +463,11 @@
     function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
     function updateTimer(){ timerEl.textContent = String(timer).padStart(3,'0').slice(-3); }
 
-    function setFace(icon){ faceEl.textContent = icon; }
+    function setFace(icon){
+      // Map previous emoji states to text labels to avoid emojis
+      const map = { '🙂': 'Ready', '😮': 'Hold', '😵': 'Lost', '😎': 'Win' };
+      faceEl.textContent = map[icon] || 'Reset';
+    }
 
     // ======= Interaction =======
     function onLeftClick(e){
